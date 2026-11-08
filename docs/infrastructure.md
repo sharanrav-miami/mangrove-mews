@@ -1,69 +1,21 @@
-# Cloudflare infrastructure
+# Infrastructure for the personal Mews repository
 
-Dedicated resources were created for this project in the user's existing paid Cloudflare account. No application tables or product schema have been created.
+The working demo is local: React/Vite, the Worker API adapted to loopback, SQLite, and private local image objects. It runs at http://127.0.0.1:5197/ with `npm run dev:full`.
 
-| Resource | Name | Management |
-| --- | --- | --- |
-| Worker and static app assets | `devday-js-2026` | [Cloudflare dashboard](https://dash.cloudflare.com/d4501cb4c3a0ec6b4b67b051d83d3a30/workers/services/view/devday-js-2026/production) |
-| D1 database | `devday-js-2026-db` | [Cloudflare dashboard](https://dash.cloudflare.com/d4501cb4c3a0ec6b4b67b051d83d3a30/workers/d1/databases/5e49e8ba-625a-4954-9ebc-10d7f3100b90) |
+## Independent Cloudflare configuration
 
-## Live URLs
+This repository no longer targets the team repository's Cloudflare account, Worker, or database. `wrangler.jsonc` uses the name `mangrove-mews`, and its all-zero database ID is an explicit placeholder for packaging checks, not a usable remote binding.
 
-| Endpoint | URL |
+The optional dedicated demo deployment creates:
+
+| Resource | Name |
 | --- | --- |
-| App | [devday-js-2026.deal-finder.workers.dev](https://devday-js-2026.deal-finder.workers.dev/) |
-| API health | [devday-js-2026.deal-finder.workers.dev/api/health](https://devday-js-2026.deal-finder.workers.dev/api/health) |
+| Worker | `mangrove-mews-demo` |
+| D1 | `mangrove-mews-demo-db` |
+| Private R2 bucket | `mangrove-mews-demo-photos` |
 
-Both endpoints are public. Cloudflare dashboard links require an account with access to the resources. The app uses the Worker's `workers.dev` address; no custom domain is configured in `wrangler.jsonc`.
+The script requires `CLOUDFLARE_ACCOUNT_ID` for the owner's chosen account and `CLOUDFLARE_API_TOKEN` with appropriate D1/R2/Worker management access. No account is inferred from the former project. The new repository starts without deployment secrets.
 
-## Source and configuration
+Pushes to `main` run build, tests, Storybook, and Worker packaging only. Deployment requires an explicit workflow dispatch with `deploy_demo=true` after configuring this repository. See [hosted setup](hosted-demo-setup.md).
 
-- `worker/index.js`: static asset routing and `/api/health`.
-- `wrangler.jsonc`: Worker name, account, static assets, and the D1 `DB` binding.
-- `dist/`: compiled app assets; generated and ignored by Git.
-
-Resource identifiers in the configuration are not API credentials. Wrangler uses the developer's existing Cloudflare login. Keep credentials out of the repository.
-
-## Current behavior
-
-The root displays only Hello. `GET /api/health` executes `SELECT 1 AS ok` through the database binding and returns a no-cache JSON response indicating connectivity. Database failures return 503, unsupported health methods return 405, and unknown `/api` paths return JSON 404. The route does not read product records or accept writes.
-
-The initial deployment was checked in Chrome, its HTML/JS/CSS matched the local `dist/` output, and the health request succeeded against the remote D1 binding. A schema inspection confirmed no application tables.
-
-On November 7, 2026, both live URLs returned HTTP 200. The health response was:
-
-```json
-{"ok":true,"service":"devday-js-2026","database":"connected"}
-```
-
-## GitHub Actions deployment
-
-The [Build and deploy to Cloudflare workflow](https://github.com/developmentjgonz/devday-hackathon-2026/actions/workflows/cloudflare.yml) is defined in [`.github/workflows/cloudflare.yml`](../.github/workflows/cloudflare.yml).
-
-| Trigger | Checks | Deploys to the live Worker |
-| --- | --- | --- |
-| Push to `main` | Yes | No |
-| Push to `release` | Yes | Yes, after checks pass |
-| Pull request to `main` or `release` | Yes | No |
-| Manual run | Yes | Only when the selected branch is `release` |
-
-Checks install dependencies, build the app and Storybook, and validate the Worker bundle with a Wrangler dry run. CI uses Node.js 22 and Wrangler 4.158.0. Storybook is built for validation; its output is not deployed.
-
-Deployment uses the repository's `CLOUDFLARE_API_TOKEN` Actions secret. Resource identifiers and bindings come from [`wrangler.jsonc`](../wrangler.jsonc). After deployment, the workflow checks the app URL and requires the health response shown above.
-
-The [verified release run](https://github.com/developmentjgonz/devday-hackathon-2026/actions/runs/42413318529) deployed commit [`0a4344c`](https://github.com/developmentjgonz/devday-hackathon-2026/commit/0a4344c1041ae8db985babf0f067efdf762a5777). Later documentation commits on `main` do not change the live deployment.
-
-## Build and deploy
-
-From an authenticated Cloudflare development environment:
-
-```sh
-npm ci
-npm run build
-npx --yes wrangler@4.158.0 whoami
-npx --yes wrangler@4.158.0 deploy
-```
-
-The `whoami` command checks the active Cloudflare login before deployment. Manual deployment publishes the current local build; it does not use the workflow's `release` branch condition.
-
-For local Worker, asset, and D1 binding development after building the app, use `npx --yes wrangler@4.158.0 dev`. The separate Vite server serves only the frontend; it does not provide the Worker health API. Storybook is a separate local workspace and is not part of this deployment.
+The public health endpoint is `/api/health`; a successful database check returns `ok: true`, `service: "mangrove-mews"`, and `database: "connected"`. Packaging alone does not verify remote storage.

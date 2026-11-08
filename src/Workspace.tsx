@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, CalendarDays, Compass, Crosshair, Database, FlaskConical, Image, Menu, MessageSquare, PawPrint, Settings2, Upload, X } from "lucide-react";
+import { Bell, CalendarDays, Compass, Crosshair, Database, FlaskConical, Image, LogOut, Menu, MessageSquare, PawPrint, Settings2, Upload, X } from "lucide-react";
+import { LoginPage } from "./components/LoginPage";
 import { StoredCatNavigator } from "./components/StoredCatNavigator";
 import { ConnectedFieldMap } from "./components/ConnectedFieldMap";
 import { SharedIntake } from "./components/SharedIntake";
@@ -22,7 +23,7 @@ import { FieldTools } from "./components/FieldTools";
 import { WorkspaceSearch } from "./components/WorkspaceSearch";
 import { MyShift } from "./components/MyShift";
 
-import { AUTH_CHANGED_EVENT, accountIdentity, canOpenWorkspaceView, createWorkspaceRequestGate, isWorkspaceView, navigationForRole, notificationReadKey, readNotificationIds, workspaceAlerts, workspaceEntry } from "./lib/workspace-navigation";
+import { AUTH_CHANGED_EVENT, destinationAfterLogin, accountIdentity, canOpenWorkspaceView, createWorkspaceRequestGate, isWorkspaceView, navigationForRole, notificationReadKey, readNotificationIds, workspaceAlerts, workspaceEntry } from "./lib/workspace-navigation";
 import type { NotificationReview, ShiftAttention, WorkspaceAlert, WorkspaceUser, WorkspaceView } from "./lib/workspace-navigation";
 import "./components/WorkspaceNavigation.css";
 
@@ -47,7 +48,7 @@ function validUser(value:unknown):value is WorkspaceUser {
 }
 
 export function Workspace({ photos }: { photos?: React.ReactNode }) {
-  const [view,setView]=useState<WorkspaceView>(()=>isWorkspaceView(location.hash.slice(1))?location.hash.slice(1) as WorkspaceView:"overview");
+  const [view,setView]=useState<WorkspaceView|"login">(()=>location.hash==="#login"?"login":isWorkspaceView(location.hash.slice(1))?location.hash.slice(1) as WorkspaceView:"overview");
   const [menu,setMenu]=useState(false),[settings,setSettings]=useState(false),[notifications,setNotifications]=useState(false);
   const [user,setUser]=useState<WorkspaceUser|null>(null),[sessionChecked,setSessionChecked]=useState(false),[sessionNotice,setSessionNotice]=useState("");
   const [alerts,setAlerts]=useState<WorkspaceAlert[]>([]),[alertStatus,setAlertStatus]=useState<AlertStatus>("loading"),[read,setRead]=useState<string[]>([]),[visibleAlerts,setVisibleAlerts]=useState(20);
@@ -68,7 +69,7 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
     persistPreference("mews-compact",compact);persistPreference("mews-contrast",contrast);persistPreference("mews-large-text",largeText);persistPreference("mews-reduce-motion",reduceMotion);
   },[compact,contrast,largeText,reduceMotion]);
   useEffect(()=>{const query=matchMedia("(max-width: 760px)");const update=()=>{setMobile(query.matches);if(!query.matches)setMenu(false);};query.addEventListener("change",update);return()=>query.removeEventListener("change",update);},[]);
-  useEffect(()=>{const change=()=>{const next=location.hash.slice(1);if(isWorkspaceView(next)){setView(next);setMenu(false);setNotifications(false);setSettings(false);}};addEventListener("hashchange",change);return()=>removeEventListener("hashchange",change);},[]);
+  useEffect(()=>{const change=()=>{const next=location.hash.slice(1);if(next==="login"||isWorkspaceView(next)){setView(next);setMenu(false);setNotifications(false);setSettings(false);}};addEventListener("hashchange",change);return()=>removeEventListener("hashchange",change);},[]);
   useEffect(()=>{
     let disposed=false,controller:AbortController|null=null;
     const active=(ticket:number)=>!disposed&&gate.current.isCurrent(ticket);
@@ -92,8 +93,8 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
           setAlerts([]);setRead(restoreRead(next));setVisibleAlerts(20);setNotifications(false);setSettings(false);
         }
         currentUser.current=next;setUser(next);setSessionChecked(true);setSessionNotice("");
-        if(returnAfterSignIn.current&&authTransition.current) {
-          const requested=returnAfterSignIn.current;returnAfterSignIn.current=null;authTransition.current=false;defaultAfterSignIn.current=false;location.hash=requested;setView(requested);
+        if(authTransition.current) {
+          const requested=destinationAfterLogin(next.role,returnAfterSignIn.current);returnAfterSignIn.current=null;authTransition.current=false;defaultAfterSignIn.current=false;location.hash=requested;setView(requested);
         }else if(defaultAfterSignIn.current) {
           defaultAfterSignIn.current=false;
           if(next.role==="volunteer"&&(!location.hash||location.hash==="#overview")){location.hash="my-shift";setView("my-shift");}
@@ -127,6 +128,12 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
     return()=>{disposed=true;gate.current.invalidate();controller?.abort();clearInterval(timer);removeEventListener("mews-data-changed",dataChanged);removeEventListener(AUTH_CHANGED_EVENT,authChanged);};
   },[]);
   useEffect(()=>{
+    if(sessionChecked&&!user&&view!=="login"&&view!=="map") {
+      if(view!=="overview")returnAfterSignIn.current=view;
+      setView("login");location.hash="login";
+    }
+  },[sessionChecked,user,view]);
+  useEffect(()=>{
     if(!menu||!mobile)return;
     const previous=document.activeElement as HTMLElement|null;
     const first=sidebarRef.current?.querySelector<HTMLElement>('a[aria-current="page"],button');first?.focus();
@@ -146,14 +153,21 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
     const escape=(event:KeyboardEvent)=>{if(event.key!=="Escape")return;if(menu){setMenu(false);menuButton.current?.focus();}if(notifications){setNotifications(false);notificationsButton.current?.focus();}if(settings){setSettings(false);settingsButton.current?.focus();}};
     addEventListener("keydown",escape);return()=>removeEventListener("keydown",escape);
   },[menu,notifications,settings]);
-  function go(next:WorkspaceView) {setView(next);setMenu(false);setNotifications(false);setSettings(false);location.hash=next;window.scrollTo({top:0});requestAnimationFrame(()=>mainRef.current?.focus({preventScroll:true}));}
+  function go(next:WorkspaceView|"login") {setView(next);setMenu(false);setNotifications(false);setSettings(false);location.hash=next;window.scrollTo({top:0});requestAnimationFrame(()=>mainRef.current?.focus({preventScroll:true}));}
   function follow(event:React.MouseEvent<HTMLAnchorElement>,next:WorkspaceView) {if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();go(next);}
-  function account(returnTo:WorkspaceView|null=null) {returnAfterSignIn.current=returnTo;authTransition.current=false;go("overview");requestAnimationFrame(()=>{document.getElementById("shared-intake-title")?.scrollIntoView({block:"start"});document.querySelector<HTMLInputElement>('.shared-login input[type="email"]')?.focus({preventScroll:true});});}
+  function account(returnTo:WorkspaceView|"login"|null=null) {returnAfterSignIn.current=returnTo==="login"?null:returnTo;authTransition.current=false;go("login");}
+  async function signOut() {
+    const csrf=document.cookie.split("; ").find(item=>item.startsWith("mews_csrf="))?.slice(10)??"";
+    const response=await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin",headers:{"X-CSRF-Token":csrf}});
+    if(!response.ok)throw new Error("Unable to sign out. Your session has been kept; please retry.");
+    returnAfterSignIn.current=null;go("login");dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  }
   function markRead(ids:string[]) {
     const account=currentUser.current;if(!account)return;
     setRead(previous=>{const next=readNotificationIds([...previous,...ids]);try{localStorage.setItem(notificationReadKey(account),JSON.stringify(next));}catch{/* Read state remains active in memory. */}return next;});
   }
   function openAlert(item:WorkspaceAlert) {markRead([item.id]);if(item.observationId)sessionStorage.setItem("mews-review-observation",item.observationId);if(item.fieldTab)sessionStorage.setItem("mews-field-tools-tab",item.fieldTab);go(item.view);}
+  const loginVisible=view==="login"||(!user&&view!=="map");
   const unread=alerts.filter(item=>!read.includes(item.id));
   const badge=alertStatus==="loading"?"…":alertStatus==="unavailable"?"?":unread.length?`${unread.length}${alertStatus==="partial"?"+":""}`:alertStatus==="partial"?"?":null;
   const role=user?.role??null,current=workspaceEntry(view);
@@ -184,6 +198,7 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
       case "my-shift":return <MyShift/>;
     }
   }
+  if(loginVisible)return <LoginPage user={user} checking={!sessionChecked} notice={sessionNotice} onSignedIn={()=>dispatchEvent(new Event(AUTH_CHANGED_EVENT))} onSignOut={signOut} onContinue={()=>go(destinationAfterLogin(user!.role,returnAfterSignIn.current))} onPublicMap={()=>{returnAfterSignIn.current=null;go("map");}}/>;
   return <div className="app-shell">
     <a className="workspace-skip-link" href="#workspace-main" onClick={event=>{event.preventDefault();mainRef.current?.focus();mainRef.current?.scrollIntoView({block:"start"});}}>Skip to main content</a>
     {menu&&mobile&&<button className="workspace-menu-overlay" aria-label="Close navigation overlay" tabIndex={-1} onClick={()=>setMenu(false)}/>}
@@ -195,7 +210,7 @@ export function Workspace({ photos }: { photos?: React.ReactNode }) {
     <main ref={mainRef} id="workspace-main" tabIndex={-1}><header className="topbar">
       <button ref={menuButton} className="mobile-menu icon-button" onClick={()=>{setMenu(!menu);setNotifications(false);setSettings(false);}} aria-label={menu?"Close navigation":"Open navigation"} aria-expanded={menu} aria-controls="workspace-navigation"><Menu size={20}/></button>
       <div className="region"><span/><b>South Florida</b><small>{current?.label??"Care workspace"}</small></div>
-      <div className="workspace-tools"><button ref={notificationsButton} className="icon-button" aria-label="Notifications" aria-expanded={notifications} aria-controls="workspace-notifications" aria-describedby="workspace-notification-status" onClick={()=>{setNotifications(!notifications);setSettings(false);setMenu(false);}}><Bell size={18}/>{badge&&<span className="workspace-count" aria-hidden="true">{badge}</span>}</button><span id="workspace-notification-status" className="workspace-visually-hidden">{notificationSummary}</span><button ref={settingsButton} className="icon-button" aria-label="Appearance settings" aria-expanded={settings} aria-controls="workspace-settings" onClick={()=>{setSettings(!settings);setNotifications(false);setMenu(false);}}><Settings2 size={18}/></button><button className="secondary-button workspace-profile" title={user?.email??"Open team sign-in"} onClick={()=>account(view)}>{user?.email??"Team sign in"}</button></div>
+      <div className="workspace-tools"><button ref={notificationsButton} className="icon-button" aria-label="Notifications" aria-expanded={notifications} aria-controls="workspace-notifications" aria-describedby="workspace-notification-status" onClick={()=>{setNotifications(!notifications);setSettings(false);setMenu(false);}}><Bell size={18}/>{badge&&<span className="workspace-count" aria-hidden="true">{badge}</span>}</button><span id="workspace-notification-status" className="workspace-visually-hidden">{notificationSummary}</span><button ref={settingsButton} className="icon-button" aria-label="Appearance settings" aria-expanded={settings} aria-controls="workspace-settings" onClick={()=>{setSettings(!settings);setNotifications(false);setMenu(false);}}><Settings2 size={18}/></button><button className="secondary-button workspace-profile" title={user?.email??"Open team sign-in"} onClick={()=>account(view)}>{user?.email??"Team sign in"}</button>{user&&<button className="icon-button" aria-label="Sign out" title="Sign out" onClick={()=>void signOut().catch(error=>setSessionNotice(error.message))}><LogOut size={18}/></button>}</div>
     </header>
     {settings&&<section ref={popoverRef} id="workspace-settings" className="workspace-popover" role="dialog" aria-labelledby="workspace-settings-title"><header><h2 id="workspace-settings-title" tabIndex={-1}>Appearance preferences</h2><button className="icon-button" aria-label="Close settings" onClick={()=>{setSettings(false);settingsButton.current?.focus();}}><X size={16}/></button></header><label><span>Compact layout</span><input type="checkbox" checked={compact} onChange={()=>setCompact(!compact)}/></label><label><span>High contrast</span><input type="checkbox" checked={contrast} onChange={()=>setContrast(!contrast)}/></label><label><span>Larger text and controls</span><input type="checkbox" checked={largeText} onChange={()=>setLargeText(!largeText)}/></label><label><span>Reduce interface motion</span><input type="checkbox" checked={reduceMotion} onChange={()=>setReduceMotion(!reduceMotion)}/></label><p>Saved on this device. Your team role is set by the server.</p></section>}
     {notifications&&<section ref={popoverRef} id="workspace-notifications" className="workspace-popover" role="dialog" aria-labelledby="workspace-notifications-title"><header><h2 id="workspace-notifications-title" tabIndex={-1}>{role==='volunteer'?"My notifications":"Review notifications"}</h2><button className="icon-button" aria-label="Close notifications" onClick={()=>{setNotifications(false);notificationsButton.current?.focus();}}><X size={16}/></button></header><p role="status">{notificationSummary}</p>{user&&role!=='sponsor'&&<p>{role==='volunteer'?"Only your assigned work appears here.":"Open team reviews, followed by your assignments. Urgent care appears first."} Read state is saved for this account on this device.</p>}{alerts.slice(0,visibleAlerts).map(item=><button key={item.id} className={`workspace-alert ${read.includes(item.id)?"is-read":"is-unread"}`} onClick={()=>openAlert(item)}><b>{item.title}{!read.includes(item.id)&&<em>Unread</em>}</b><span>{item.explanation}</span></button>)}{alertStatus==='ready'&&user&&alerts.length===0&&<p>No open items need your attention.</p>}{alerts.length>visibleAlerts&&<button className="secondary-button" onClick={()=>setVisibleAlerts(count=>count+20)}>Show more ({alerts.length-visibleAlerts} remaining)</button>}{alerts.length>0&&<button className="secondary-button workspace-mark-read" onClick={()=>markRead(alerts.map(item=>item.id))}>Mark all loaded items read</button>}{!user&&sessionChecked&&<button className="primary-button" onClick={()=>account()}>Open team sign-in</button>}</section>}

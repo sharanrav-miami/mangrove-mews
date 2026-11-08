@@ -8,7 +8,7 @@ export const WEEKEND_CAT_META = {
   },
   "CAT-W-GUAVA": {
     "name": "Guava",
-    "photo": null,
+    "photo": "/demo-assets/guava-profile.png",
     "fixed": null,
     "tnr": "review needed"
   },
@@ -20,7 +20,7 @@ export const WEEKEND_CAT_META = {
   },
   "CAT-W-COCO": {
     "name": "Coco",
-    "photo": null,
+    "photo": "/demo-assets/coco-profile.png",
     "fixed": null,
     "tnr": "review needed"
   },
@@ -188,13 +188,13 @@ export const WEEKEND_CAT_META = {
   },
   "CAT-W-GUAVA-ALT": {
     "name": "Guava candidate",
-    "photo": null,
+    "photo": "/demo-assets/guava-alternate.png",
     "fixed": null,
     "tnr": "unconfirmed duplicate"
   },
   "CAT-W-COCO-ALT": {
     "name": "Coco candidate",
-    "photo": null,
+    "photo": "/demo-assets/coco-alternate.png",
     "fixed": null,
     "tnr": "unconfirmed duplicate"
   }
@@ -219,7 +219,7 @@ export const WEEKEND_CAT_DETAILS = {
     "breed": "Domestic shorthair, fictional record",
     "microchip": "No verified scan on file",
     "vaccinations": "Synthetic review pending; no administered dose recorded",
-    "profile_note": "Invented weekend fixture identity; no photo supplied. Markings are report descriptors, not verified visual matching."
+    "profile_note": "Fictional identity with a staged AI-generated companion image added for photo-review demos. Original source evidence is unchanged; coordinator verification is required."
   },
   "CAT-W-PEPPER": {
     "coat": "Smoke gray",
@@ -239,7 +239,7 @@ export const WEEKEND_CAT_DETAILS = {
     "breed": "Domestic shorthair, fictional record",
     "microchip": "No verified scan on file",
     "vaccinations": "Synthetic review pending; no administered dose recorded",
-    "profile_note": "Invented weekend fixture identity; no photo supplied. Markings are report descriptors, not verified visual matching."
+    "profile_note": "Fictional identity with a staged AI-generated companion image added for photo-review demos. Original source evidence is unchanged; coordinator verification is required."
   },
   "CAT-W-BISCUIT": {
     "coat": "Dilute tortoiseshell",
@@ -519,7 +519,7 @@ export const WEEKEND_CAT_DETAILS = {
     "breed": "Domestic shorthair, fictional record",
     "microchip": "No verified scan on file",
     "vaccinations": "Synthetic review pending; no administered dose recorded",
-    "profile_note": "Separate fictional candidate pending coordinator photo/evidence review. Never automatically merge."
+    "profile_note": "Fictional identity with a staged AI-generated companion image added for photo-review demos. Original source evidence is unchanged; coordinator verification is required."
   },
   "CAT-W-COCO-ALT": {
     "coat": "Brown ticked coat",
@@ -529,7 +529,7 @@ export const WEEKEND_CAT_DETAILS = {
     "breed": "Domestic shorthair, fictional record",
     "microchip": "No verified scan on file",
     "vaccinations": "Synthetic review pending; no administered dose recorded",
-    "profile_note": "Separate fictional candidate pending coordinator photo/evidence review. Never automatically merge."
+    "profile_note": "Fictional identity with a staged AI-generated companion image added for photo-review demos. Original source evidence is unchanged; coordinator verification is required."
   }
 };
 

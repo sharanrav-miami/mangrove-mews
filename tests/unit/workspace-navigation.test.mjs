@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canOpenWorkspaceView, createWorkspaceRequestGate, navigationForRole, notificationReadKey, readNotificationIds, workspaceAlerts } from '../../src/lib/workspace-navigation.ts';
+import { destinationAfterLogin, canOpenWorkspaceView, createWorkspaceRequestGate, navigationForRole, notificationReadKey, readNotificationIds, workspaceAlerts } from '../../src/lib/workspace-navigation.ts';
 
 const volunteer={id:3,email:'volunteer@mangrovemews.demo',role:'volunteer'};
 const manager={id:1,email:'admin@mangrovemews.demo',role:'admin'};
@@ -75,4 +75,16 @@ test('late notification responses cannot cross an account change or logout bound
   assert.deepEqual(displayed,['my new account task']);
   const pending=gate.begin();gate.invalidate();
   assert.equal(gate.isCurrent(pending),false,'logout invalidates an unfinished request even before a new sign-in');
+});
+
+
+test('sign-in restores only permitted known routes and chooses useful account defaults',()=>{
+  assert.equal(destinationAfterLogin('admin','matches'),'matches');
+  assert.equal(destinationAfterLogin('coordinator','vision'),'vision');
+  assert.equal(destinationAfterLogin('volunteer','vision'),'my-shift');
+  assert.equal(destinationAfterLogin('sponsor','imports'),'overview');
+  assert.equal(destinationAfterLogin('sponsor','outcomes'),'outcomes');
+  assert.equal(destinationAfterLogin('volunteer',null),'my-shift');
+  assert.equal(destinationAfterLogin('admin',null),'overview');
+  for(const unknown of ['login','https://example.com','javascript:alert(1)','/admin','not-a-page'])assert.equal(destinationAfterLogin('admin',unknown),'overview');
 });

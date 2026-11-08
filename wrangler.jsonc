@@ -1,21 +1,25 @@
 {
-  "name": "devday-js-2026",
-  "account_id": "d4501cb4c3a0ec6b4b67b051d83d3a30",
+  "name": "mangrove-mews",
   "main": "worker/index.js",
   "compatibility_date": "2026-11-07",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api", "/api/*"]
+    "run_worker_first": [
+      "/api",
+      "/api/*"
+    ]
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "devday-js-2026-db",
-      "database_id": "5e49e8ba-625a-4954-9ebc-10d7f3100b90"
+      "database_name": "mangrove-mews-db",
+      "database_id": "00000000-0000-0000-0000-000000000000"
     }
   ]
 }

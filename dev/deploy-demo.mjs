@@ -8,10 +8,11 @@ const root = process.cwd();
 const token = process.env.CLOUDFLARE_API_TOKEN;
 if (!token) throw new Error('CLOUDFLARE_API_TOKEN is required; use the repository deployment workflow.');
 const original = JSON.parse(await readFile(resolve(root, 'wrangler.jsonc'), 'utf8'));
-const account = original.account_id;
-const workerName = 'devday-js-2026-mews-demo';
-const databaseName = 'mews-synthetic-demo-db';
-const bucketName = 'mews-synthetic-demo-photos';
+const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+if (!/^[a-f0-9]{32}$/i.test(account ?? "")) throw new Error("Set CLOUDFLARE_ACCOUNT_ID for your own Cloudflare account before deploying.");
+const workerName = 'mangrove-mews-demo';
+const databaseName = 'mangrove-mews-demo-db';
+const bucketName = 'mangrove-mews-demo-photos';
 const state = resolve(root, '.wrangler/hosted-demo');
 await mkdir(state, { recursive: true });
 async function api(path, options = {}, missing = false) {

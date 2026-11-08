@@ -82,3 +82,9 @@ export function createWorkspaceRequestGate() {
   let revision=0;
   return {begin(){return ++revision;},invalidate(){revision+=1;},isCurrent(ticket:number){return ticket===revision;}};
 }
+
+/** Only known, role-permitted routes can be restored after sign-in. */
+export function destinationAfterLogin(role:WorkspaceRole,requested:string|null):WorkspaceView {
+  if(requested&&isWorkspaceView(requested)&&canOpenWorkspaceView(requested,role))return requested;
+  return role==='volunteer'?'my-shift':'overview';
+}

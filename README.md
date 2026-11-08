@@ -1,10 +1,12 @@
-# Mews — Team JS
+# Mangrove Mews
 
-Mews is Team JS's project for the [DevDay Exchange Community Hackathon](https://deepstation.ai/hackathons/vtl7ctbeihnikitvjwl3941h). We have chosen the **Mangrove Mews cat colony tracking challenge**.
+A personal hackathon project by [sharanrav-miami](https://github.com/sharanrav-miami) for the [DevDay Exchange Community Hackathon](https://deepstation.ai/hackathons/vtl7ctbeihnikitvjwl3941h). Built for the **Mangrove Mews cat colony tracking challenge**.
 
 Mangrove Mews helps a small rescue turn intentional field reports, exported chat history, photos, and approximate locations into an operating picture that a coordinator can act on the same day.
 
-**Status:** This branch contains a local, persisted, synthetic-only demo. `npm run dev:full` runs the React workspace through a loopback-only adapter with SQLite and local private-photo storage. The Worker is structured for Cloudflare D1/R2, but a remote deployment is not claimed or required for the demo. It uses fictional cats, messages, photos, and deliberately approximate locations only.
+**Status:** This repository contains a local, persisted, synthetic-only demo. `npm run dev:full` runs the React workspace through a loopback-only adapter with SQLite and local private-photo storage. The Worker is structured for Cloudflare D1/R2, but a remote deployment is not claimed or required for the demo. It uses fictional cats, messages, photos, and deliberately approximate locations only.
+
+This repository continues the Mews implementation in a separate personal submission. Starter provenance is preserved in [SOURCE_ATTRIBUTION.md](SOURCE_ATTRIBUTION.md).
 
 ## What is implemented
 
@@ -26,9 +28,11 @@ Mangrove Mews helps a small rescue turn intentional field reports, exported chat
 
 The checked demo path is local: `npm run dev:full` uses a loopback-only Vite adapter, Node's SQLite support, and filesystem-backed private-photo objects. It seeds four synthetic accounts and applies the repository migrations locally. It is not a production deployment.
 
-The Worker code and migrations are designed for D1/R2-style bindings, but remote D1/R2 configuration, production identity, persistent secrets, ingestion webhooks, monitoring, and a deployed URL must be completed and reviewed before any field use. See [infrastructure.md](docs/infrastructure.md) for the intended infrastructure shape; do not treat it as a record of a live deployment.
+The original team account/bindings have been removed. This repository starts without deployment secrets. The Worker code and migrations are designed for D1/R2-style bindings, but remote D1/R2 configuration, production identity, persistent secrets, ingestion webhooks, monitoring, and a deployed URL must be completed and reviewed before any field use. See [infrastructure.md](docs/infrastructure.md) for the intended infrastructure shape; do not treat it as a record of a live deployment.
 
 ## Project guide
+
+- [Personal submission setup](docs/personal-submission.md): independent repository, login, complete rehearsal data, and saved import files.
 
 - [Project brief](PROJECT_BRIEF.md): the problem, intended users, and proposed scope.
 - [Architecture](docs/architecture.md): directory boundaries and the agreed technology direction.
@@ -38,7 +42,8 @@ The Worker code and migrations are designed for D1/R2-style bindings, but remote
 - [Infrastructure](docs/infrastructure.md): dedicated Cloudflare resources, deployment, and health checks.
 - [Local skills](.agents/skills/README.md): installed guidance and source revisions.
 - [Feature map](.agents/skills/verify-mews/references/features/README.md): implemented user-visible behavior and verification notes.
-- [Demo runbook](docs/demo-runbook.md): a guided judge-ready walkthrough with the synthetic chats and SMS relays.
+- [Photo-review demo](docs/photo-review-demo.md): new fictional Guava/Coco photo pairs, repeatable comparison scenarios, and the vision-agent handoff.
+- [Demo runbook](docs/demo-runbook.md): an admin-only walkthrough from the dedicated login screen through intake, photo evidence, field planning, and outcome exports.
 - [Feature pass 6](docs/feature-pass-6.md): current rating, new review/search workflows, and local verification evidence.
 - [Feature pass 7](docs/feature-pass-7.md): real image analysis, five practical field tools, the expanded scenario, and current verification.
 - [Current regrade — pass 8](docs/feature-pass-8-regrade.md): 8.8/10 local-demo estimate, replay integrity, simpler workday navigation, and 50 passing tests.

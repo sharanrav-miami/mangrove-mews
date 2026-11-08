@@ -42,7 +42,7 @@ test("weekend dispatch retains 72 traceable multilingual reports across 18 ficti
   }
 });
 
-test("weekend identity proposals retain duplicate candidates and migration without automatic merging", () => {
+test("weekend identity proposals retain duplicate candidates and migration without automatic merging", async () => {
   const prepared = prepareSyntheticImport(fixture);
   const duplicates = prepared.messages.filter(message => message.review.some(review => review.kind === "possible_duplicate"));
   assert.deepEqual(new Set(duplicates.map(message => message.proposedCatKey)), new Set(["CAT-W-GUAVA-ALT", "CAT-W-COCO-ALT"]));
@@ -50,9 +50,16 @@ test("weekend identity proposals retain duplicate candidates and migration witho
   assert.equal(new Set(prepared.messages.filter(message => message.proposedCatKey === "CAT-W-GUAVA").map(message => message.proposedColonyKey)).size, 2);
   assert.equal(new Set(prepared.messages.filter(message => message.proposedCatKey === "CAT-SKIPPER").map(message => message.proposedColonyKey)).size, 2);
   assert.equal(Object.keys(WEEKEND_CAT_META).length, 33);
+  const stagedPhotos = {
+    "CAT-W-GUAVA": "/demo-assets/guava-profile.png", "CAT-W-GUAVA-ALT": "/demo-assets/guava-alternate.png",
+    "CAT-W-COCO": "/demo-assets/coco-profile.png", "CAT-W-COCO-ALT": "/demo-assets/coco-alternate.png",
+  };
+  const photoBytes = [];
+  for (const path of Object.values(stagedPhotos)) photoBytes.push(await readFile(new URL("../../public" + path, import.meta.url)));
+  for (let i = 0; i < photoBytes.length; i++) for (let j = i + 1; j < photoBytes.length; j++) assert.notDeepEqual(photoBytes[i], photoBytes[j], "staged viewpoints must be distinct images");
   for (const [key, source] of Object.entries(fixture.catCatalog)) {
     assert.equal(WEEKEND_CAT_META[key].name, source.name);
-    assert.equal(WEEKEND_CAT_META[key].photo, null, "new cats must not borrow another cat's image");
+    assert.equal(WEEKEND_CAT_META[key].photo, stagedPhotos[key] ?? null, "only cats with dedicated staged evidence receive photos");
     assert.equal(WEEKEND_CAT_DETAILS[key].markings, source.markings);
     assert.ok(WEEKEND_CAT_DETAILS[key].estimated_dob.includes("fictional"));
   }

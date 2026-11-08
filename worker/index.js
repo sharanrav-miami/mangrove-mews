@@ -14,7 +14,7 @@ import { getVisionWorkspace, compareCatPhotos, reviewVisionComparison } from "./
 import { listFieldTools, createAppointment, updateAppointment, createSupplyRequest, pledgeSupply, updateSupply, createHandoff, acknowledgeHandoff, closeHandoff } from "./field-tools.js";
 import { searchWorkspace, getMyShift } from "./workspace-tools.js";
 
-const service = "devday-js-2026";
+const service = "mangrove-mews";
 
 function json(body, status = 200, headers = {}) {
   return Response.json(body, {

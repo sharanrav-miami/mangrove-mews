@@ -1,50 +1,37 @@
-# Dedicated synthetic Cloudflare demo
+# Independent hosted demo setup
 
-Status: deployment attempted November 8, 2026, blocked by D1 authorization. The existing release was not changed. Do not present the planned demo address as a live deployment.
+The personal Mangrove Mews repository is prepared for an optional isolated Cloudflare deployment. **No personal hosted Worker, D1 database, or R2 bucket is currently verified.** The local app remains the working demonstration.
 
-After the user approved and configured both API secrets, the [deployment retry](https://github.com/developmentjgonz/devday-hackathon-2026/actions/runs/42492341290) reached the dedicated deploy step with all four encrypted configuration secrets available. Cloudflare again rejected D1 listing with `10000: Authentication error`. No dedicated D1, R2, or Worker resource was created. Key-sharing approval is resolved; Cloudflare account authorization remains the blocker.
+The former team repository's credentials and resource bindings have not been copied into this repository. Previous team deployment attempts failed D1 management authorization; those historical runs do not establish access for the personal project.
 
-**Latest retry, pass 8:** [Run 42513883485](https://github.com/developmentjgonz/devday-hackathon-2026/actions/runs/42513883485), against code commit `bf67da6`, passed the frontend build, all 50 tests, Storybook build, and Worker bundle check on Node 24.22.2. It authenticated to the configured Cloudflare account, then failed at `/d1/database?name=mews-synthetic-demo-db&per_page=100` with the same `10000: Authentication error`. It did not reach database creation, R2 setup, migrations, seed import, Worker publication, or hosted checks. Recent successful release deployments do not establish D1/R2 management access for this separate demo.
+## Configure the new repository explicitly
 
-## Required account access
+Set these encrypted Actions secrets in `sharanrav-miami/mangrove-mews` using the owner's chosen Cloudflare account:
 
-The current GitHub Actions credential authenticates to Workers, but Cloudflare rejected D1 listing with error `10000`. The Cloudflare account owner must check that the token targets the account in `wrangler.jsonc` and can manage D1 databases, Workers R2 storage, and Worker scripts, with any account-read permission Wrangler requires. An account token that can deploy the original Hello Worker is not sufficient evidence of D1/R2 management access.
+- `CLOUDFLARE_ACCOUNT_ID` — the account to provision resources in.
+- `CLOUDFLARE_API_TOKEN` — authorized for that account's Worker scripts, D1 management, private R2 management, and the account reads required by Wrangler.
+- `MEWS_DEMO_USERS_JSON` — separate salted verifiers for high-entropy synthetic hosted access codes, prepared using the repository's hosted-seed tooling. Keep plaintext codes private.
+- `MEWS_OPENAI_API_KEY` and `MEWS_GOOGLE_MAPS_BROWSER_KEY` — only if these integrations are explicitly configured for this repository. Do not copy another repository's credentials automatically.
 
-Store the corrected token as the existing repository Actions secret `CLOUDFLARE_API_TOKEN`. Do not paste it into chat, code, a workflow argument, or a committed file. The [Cloudflare D1 guide](https://developers.cloudflare.com/d1/get-started/) describes database setup and bindings; the [R2 create-bucket API](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/create/) documents its account authorization requirements.
+Do not put credentials into Git, chat exports, or committed files. The local-only password in the runbook is not a hosted credential.
 
-## Already prepared
-
-- Separate Worker: `devday-js-2026-mews-demo`.
-- Separate D1: `mews-synthetic-demo-db`.
-- Private R2: `mews-synthetic-demo-photos`, bound as `PHOTOS`; no public bucket access is enabled.
-- All application migrations, an idempotent 112-report synthetic seed, and actual-record census refresh.
-- Four high-entropy demo-account verifiers in encrypted `MEWS_DEMO_USERS_JSON`. Their plaintext access codes stay in the user's private local access document and are not committed or uploaded.
-- With the user's explicit approval on November 8, 2026, the supplied keys are now stored as encrypted repository Actions secrets `MEWS_OPENAI_API_KEY` and `MEWS_GOOGLE_MAPS_BROWSER_KEY`. Their values were passed through stdin, were not printed, and are not committed. The deployment workflow installs them as Worker secrets after provisioning and deployment succeed. They are not yet verified on a hosted Worker because D1 authorization remains a separate blocker.
-
-## Retry the tested branch
-
-Run these commands only after the account owner updates the deployment credential:
+## Deploy after configuration
 
 ```sh
-gh auth status
 gh workflow run cloudflare.yml \
-  --repo developmentjgonz/devday-hackathon-2026 \
-  --ref feat/mangrove-mews-field-ops \
+  --repo sharanrav-miami/mangrove-mews \
+  --ref main \
   -f deploy_demo=true
-gh run list \
-  --repo developmentjgonz/devday-hackathon-2026 \
-  --workflow cloudflare.yml \
-  --branch feat/mangrove-mews-field-ops --limit 1
 ```
 
-The workflow builds, checks the synthetic tests/Storybook/Worker bundle, verifies Cloudflare authentication, provisions only the dedicated resources, applies migrations, imports the seed, and deploys the app. It uses the returned account subdomain to set `APP_ORIGIN` and prints the final URL only after health/public-census checks succeed.
+Normal pushes run checks and do not publish. The optional script creates only `mangrove-mews-demo`, `mangrove-mews-demo-db`, and the private `mangrove-mews-demo-photos` bucket within the explicitly selected account. It applies migrations, imports the synthetic seed, refreshes census projections, and verifies the health/public-census endpoints before reporting a URL.
 
-The workflow does not automatically merge into `main` or `release`. Re-running its seed preserves existing source IDs, human merges, completed work, and account verifiers.
+It does not deploy or alter the original team project. `wrangler.jsonc` contains a placeholder D1 ID for local packaging; use the generated dedicated configuration for the optional demo deployment.
 
-## Required verification after successful publication
+## Verify a successful deployment
 
-1. Open the returned URL; use the private hosted access document, **not** the local demo password.
-2. Sign in as admin and verify the stored census and all five new tools. Verify sponsor/public denial of private routes.
-3. Upload a fictional image, refresh its metadata, approve it, and reload its protected preview to exercise R2 write/read.
-4. After the workflow installs the approved keys, compare the two Marmalade views and check the saved `agent` mode; enable Maps JavaScript API/billing and restrict its browser key to the new hosted origin as well as local testing origins.
-5. Restart/reopen on another device to verify hosted persistence. Record the results before describing D1/R2 as fully verified.
+1. Open the returned URL and sign in using the private hosted access codes.
+2. Check the stored census and denial of private routes for public/sponsor access.
+3. Upload a fictional image and reload its protected preview to test R2 write/read.
+4. Check a new actual image comparison and the configured Maps origin. Restrict the Maps browser key to approved referrers and APIs.
+5. Reload from a second device to verify persistence. Only then describe the personal D1/R2 demo as hosted and verified.

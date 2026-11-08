@@ -6,6 +6,10 @@ export const VISION_FIXTURES = [
   { path: "/demo-assets/marmalade-alternate-view.png", label: "Marmalade · alternate fictional view" },
   { path: "/demo-assets/poppy-calico-limp.png", label: "Poppy · calico" },
   { path: "/demo-assets/tux-missing-search.png", label: "Tux · black and white" },
+  { path: "/demo-assets/guava-profile.png", label: "Guava · fictional reference" },
+  { path: "/demo-assets/guava-alternate.png", label: "Guava · second fictional viewpoint" },
+  { path: "/demo-assets/coco-profile.png", label: "Coco · fictional reference" },
+  { path: "/demo-assets/coco-alternate.png", label: "Coco · second fictional viewpoint" },
 ];
 const FIXTURE_PATHS = new Set(VISION_FIXTURES.map((item) => item.path));
 const MODEL = "gpt-5-mini";
