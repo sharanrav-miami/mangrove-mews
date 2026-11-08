@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MapLayer, MapRecord } from "@/lib/demo-data";
+import { FieldMapLegend, MAP_LAYER_COLORS as colors, TRACKER_MARKER_COLOR } from "./FieldMapLegend";
 
 type FieldMapProps = {
   records: MapRecord[];
@@ -30,16 +31,6 @@ declare global {
     google?: { maps?: { Map: new (element: Element, options: object) => GoogleMapInstance; Marker: new (options: object) => { setMap: (map: GoogleMapInstance | null) => void; addListener: (name: string, handler: () => void) => void } } };
   }
 }
-
-const colors: Record<MapLayer, string> = {
-  colonies: "#2c7a5e",
-  sightings: "#277da1",
-  urgent: "#c7533f",
-  hazards: "#a66a16",
-  searches: "#7755ad",
-  feeding: "#23785d",
-  weather: "#287ba2",
-};
 
 const weatherPoints = [
   { area: "Miami-Dade weather cell", lat: 25.78, lng: -80.22 },
@@ -262,7 +253,7 @@ export function FieldMap({ records, activeLayers, onSelect, selectedId, scope }:
         position: record.position,
         title: scope === "public" && record.layer !== "weather" ? `${record.layer} activity area · synthetic demo` : record.id === "live-scout" ? "LIVE demo tracker · Skipper" : record.layer === "weather" ? `${record.title} · live weather planning` : `${record.title} · synthetic demo`,
         label: record.id === "live-scout" && scope !== "public" ? { text: "LIVE", color: "#123f54", fontWeight: "700", fontSize: "9px" } : undefined,
-        icon: { path: 0, fillColor: record.id === "live-scout" ? "#43b8df" : colors[record.layer], fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2, scale: record.id === "live-scout" ? 14 : record.layer === "urgent" ? 9 : record.layer === "weather" ? 11 : 7 },
+        icon: { path: 0, fillColor: record.id === "live-scout" ? TRACKER_MARKER_COLOR : colors[record.layer], fillOpacity: 1, strokeColor: "#fff", strokeWeight: 2, scale: record.id === "live-scout" ? 14 : record.layer === "urgent" ? 9 : record.layer === "weather" ? 11 : 7 },
       });
       marker.addListener("click", () => onSelect(record));
       nextOverlays.push(circle, marker);
@@ -270,17 +261,17 @@ export function FieldMap({ records, activeLayers, onSelect, selectedId, scope }:
     overlays.current = nextOverlays;
   }, [googleReady, onSelect, scope, renderedRecords]);
 
-  return <div className="field-map" aria-label="Interactive South Florida field map">
+  return <><div className="field-map" aria-label="Interactive South Florida field map">
     <div className="field-map-actions">{googleReady && <button type="button" className="map-overview-button" onClick={() => { setFollowTracker(false); mapInstance.current?.setCenter({ lat: 25.83, lng: -80.23 }); mapInstance.current?.setZoom(10); }}>Show South Florida</button>}{hasTracker&&<><button type="button" className="map-overview-button" disabled={reducedMotion} aria-pressed={!trackerRunning||reducedMotion} onClick={()=>setTrackerRunning(value=>!value)}>{reducedMotion?'Tracker paused · reduced motion':trackerRunning?'Pause simulated tracker':'Resume simulated tracker'}</button>{googleReady&&<button type="button" className="map-overview-button" aria-pressed={followTracker} onClick={()=>setFollowTracker(value=>!value)}>{followTracker?'Stop following Skipper':'Follow Skipper'}</button>}</>}</div>
     <div ref={mapHost} className={googleReady ? "google-map active" : "google-map"} aria-hidden={!googleReady} />
     {!googleReady && <div className="map-fallback" role="group" aria-label="Synthetic South Florida map preview with approximate demo markers">
       <div className="fallback-water water-east" /><div className="fallback-water water-west" />
       <span className="fallback-label broward">BROWARD</span><span className="fallback-label miami">MIAMI-DADE</span><span className="fallback-label keys">SOUTH DADE</span>
       {renderedRecords.map((record) => <div key={record.id} className={record.id === "live-scout" ? "fallback-record tracker-ping" : "fallback-record"} style={{ left: `${((record.position.lng + 80.9) / 1.05) * 100}%`, top: `${((26.45 - record.position.lat) / 1.35) * 100}%` }}>
-        <span className={`probability-ring ${record.layer}`} style={{ width: fallbackRadiusPixels(record, scope) * 2, height: fallbackRadiusPixels(record, scope) * 2 }} />
-        <button className={`map-pin ${record.layer} ${selectedId === record.id ? "selected" : ""}`} aria-label={`${record.title}, ${record.area}, synthetic demo`} onClick={() => onSelect(record)} />
+        <span className={`probability-ring ${record.layer}`} style={{ width: fallbackRadiusPixels(record, scope) * 2, height: fallbackRadiusPixels(record, scope) * 2, color: colors[record.layer] }} />
+        <button className={`map-pin ${record.layer} ${selectedId === record.id ? "selected" : ""}`} style={{ backgroundColor: record.id === "live-scout" ? TRACKER_MARKER_COLOR : colors[record.layer] }} aria-label={`${record.title}, ${record.area}, synthetic demo`} onClick={() => onSelect(record)} />
       </div>)}
     </div>}
     <div className="map-provider-status">{googleReady ? `Google Maps · ${scope} search radii · ${renderedRecords.some((record) => record.id === "live-scout") ? "SIMULATED Skipper tracker" : "synthetic demo records"}${weather.length ? " · weather cells refreshed" : weatherFailed ? " · weather unavailable" : ""}` : mapsFailed ? "Map unavailable · showing local synthetic preview" : "Synthetic preview · Google Maps loading or unconfigured"}</div>
-  </div>;
+  </div><FieldMapLegend activeLayers={activeLayers} scope={scope} hasTracker={hasTracker}/></>;
 }

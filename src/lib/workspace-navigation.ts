@@ -25,7 +25,7 @@ export const WORKSPACE_NAVIGATION: NavigationGroup[] = [
     { id:'field-tools',label:'Field coordination',audience:'team' },
     { id:'intake-review',label:'Clarifications & routing',audience:'team' },
     { id:'photos',label:'Private photo review',audience:'team' },
-    { id:'community',label:'Community signals',audience:'team' },
+    { id:'community',label:'Facebook & PawBoost',audience:'team' },
     { id:'outcomes',label:'Care outcomes & reports',audience:'reporting' },
   ] },
   { label:'Demo & admin',entries:[

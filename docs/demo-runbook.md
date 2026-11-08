@@ -166,7 +166,7 @@ Use these after the core story, or to answer judges’ questions. Each is demons
 | My shift | My shift; optionally assign a new appointment/handoff to the admin first | Personal work exists alongside the manager's wider queue. No second account is needed. |
 | Notifications | Header bell → open an item → Mark all loaded items read | Urgent review links and per-account persistent read state. These are in-app notices, not external SMS/email. |
 | Private image storage | Private photo review → Prepare demo photo → upload → refresh → approve/reject | Browser re-encoding, private metadata/preview, and a recorded admin decision. Local adapter storage is active; hosted R2 is not verified. |
-| Community signals | Community signals → load supplied fictional example → review/extract → save lead | Intentional redacted content becomes a reviewed lead; no Facebook/PawBoost scraping or automatic cat creation. |
+| Facebook & PawBoost | Facebook & PawBoost → load supplied fictional example → review/extract → save lead | Intentional redacted content becomes a reviewed lead; no Facebook/PawBoost scraping or automatic cat creation. |
 | Evaluation | Agent evaluation → Run evaluation | Read the mode and expected/actual outcomes. Deterministic results do not prove model accuracy. |
 | Preferences/profile | Header Appearance settings/account controls | Theme, layout, accessibility/reduced motion, and account context. Reduced motion pauses the simulated tracker. |
 | Phone offline outbox | New field report → temporarily take browser offline → submit fictional report → restore service | Queued report retries while the app remains open and the original account is signed in. |

@@ -32,6 +32,10 @@ The original team account/bindings have been removed. This repository starts wit
 
 ## Project guide
 
+- [Two-minute missing-cat demo](docs/missing-cat-quick-demo.md): the Tux case, field feedback, quick navigator, and task draft.
+
+- [Cat animations and cursor](docs/cat-animations.md): original transparent GIFs, playful controls, cursor preferences, and slide shortcuts.
+
 - [Personal submission setup](docs/personal-submission.md): independent repository, login, complete rehearsal data, and saved import files.
 
 - [Project brief](PROJECT_BRIEF.md): the problem, intended users, and proposed scope.

@@ -38,3 +38,6 @@
  .topbar .workspace-tools {flex-shrink:0}
 }
 @media(prefers-reduced-motion:reduce){.workspace-navigation a,.sidebar{transition:none!important}}
+/* Keep account controls within the header at intermediate desktop widths. */
+.topbar .workspace-profile{min-width:0;max-width:clamp(80px,18vw,240px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:420px){.topbar{padding-inline:10px}.topbar .workspace-tools{gap:4px!important}.topbar .region{gap:6px}.topbar .workspace-profile{max-width:80px}}

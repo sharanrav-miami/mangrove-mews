@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Eye, EyeOff, LogOut, MapPin, PawPrint, ShieldCheck } from "lucide-react";
 import type { WorkspaceUser } from "../lib/workspace-navigation";
 import "./LoginPage.css";
+import { CatCompanion } from "./CatCompanion";
 
 type Props = { user: WorkspaceUser | null; checking: boolean; notice: string; onSignedIn: () => void; onSignOut: () => Promise<void>; onContinue: () => void; onPublicMap: () => void };
 export function LoginPage({user,checking,notice,onSignedIn,onSignOut,onContinue,onPublicMap}:Props) {
@@ -21,6 +22,7 @@ export function LoginPage({user,checking,notice,onSignedIn,onSignOut,onContinue,
   return <main className="mews-login"><title>Sign in · Mews</title><div className="mews-login-wrap">
     <a className="mews-login-brand" href="#login" aria-label="Mangrove Mews sign in"><span><PawPrint size={25}/></span><b>Mangrove <em>Mews</em></b></a>
     <p className="eyebrow">South Florida · rescue workspace</p><h1>Sign in to Mews</h1><p className="mews-login-intro">One shared picture of every colony. Sign in to review reports, coordinate care, and help the team act sooner.</p>
+    <CatCompanion compact/>
     <section className="mews-login-card" aria-label="Team sign-in">
       {(error||notice)&&<p className="mews-login-error" role={error?"alert":"status"}>{error||notice}</p>}
       {checking?<p role="status">Checking your team session…</p>:user?<>
